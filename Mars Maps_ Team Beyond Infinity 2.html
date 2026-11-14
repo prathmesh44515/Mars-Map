@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mars Maps – Team Beyond Infinity 2</title>
+<style>
+:root{--bg:#fff;--ink:#202124;--dim:#5f6368;--line:#dadce0;--blue:#1a73e8;--green:#188038;--red:#d93025;--sh:0 2px 6px rgba(60,64,67,.35);color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#2d2e30;--ink:#e8eaed;--dim:#9aa0a6;--line:#3c4043;--blue:#8ab4f8;--green:#81c995;--red:#f28b82;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#2d2e30;--ink:#e8eaed;--dim:#9aa0a6;--line:#3c4043;--blue:#8ab4f8;--green:#81c995;--red:#f28b82;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#1a0f0b;color:var(--ink);font:14px/1.4 Roboto,"Segoe UI",system-ui,sans-serif;overflow:hidden}
+#v{position:absolute;inset:0;touch-action:none;cursor:grab}
+.fl{position:absolute;background:var(--bg);color:var(--ink);box-shadow:var(--sh);border-radius:8px}
+#search{top:calc(env(safe-area-inset-top,0px) + 10px);left:10px;width:380px;max-width:calc(100% - 20px);border-radius:24px;z-index:3}
+#search input{width:100%;border:0;background:transparent;color:var(--ink);font-size:16px;padding:.8rem 3rem .8rem 1.1rem;outline:0;border-radius:24px}
+#search input:focus-visible{outline:2px solid var(--blue)}
+#sbtn{position:absolute;right:6px;top:6px;width:36px;height:36px;border:0;border-radius:50%;background:var(--blue);color:#fff;font-size:16px;cursor:pointer}
+#res{border-top:1px solid var(--line);display:none;padding:.3rem 0}
+#res div{padding:.5rem 1.1rem;cursor:pointer}#res div:hover{background:rgba(128,128,128,.15)}
+#res small{color:var(--dim);display:block}
+#card{top:calc(env(safe-area-inset-top,0px) + 64px);left:10px;width:380px;max-width:calc(100% - 20px);max-height:calc(100% - 130px);overflow:auto;padding:1rem 1.1rem;z-index:2}
+#card h2{font:400 1.35rem/1.25 "Google Sans",Roboto,sans-serif;margin:0 0 .2rem}
+#card p{margin:.3rem 0;color:var(--dim)}
+.big{font-size:1.5rem;color:var(--green);font-weight:500}.big span{color:var(--dim);font-size:1rem;font-weight:400}
+.big.bad{color:var(--red)}
+.leg{display:flex;gap:.7rem;align-items:center;padding:.5rem 0;border-top:1px solid var(--line)}
+.pin{flex:none;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+.pin.a{background:var(--green)}
+.leg small{color:var(--dim);display:block}
+.btn{border:1px solid var(--line);background:var(--bg);color:var(--blue);border-radius:18px;padding:.45rem 1rem;font-weight:500;cursor:pointer;margin:.5rem .4rem 0 0;font-size:14px}
+.btn.p{background:var(--blue);color:var(--bg);border-color:var(--blue)}
+.btn:focus-visible,.rb:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+#team{top:calc(env(safe-area-inset-top,0px) + 12px);right:10px;padding:.55rem 1rem;border-radius:20px;font-weight:600;letter-spacing:.02em}
+#ctl{right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;gap:8px;background:none;box-shadow:none}
+.rb{width:40px;height:40px;border:0;border-radius:50%;background:var(--bg);color:var(--ink);box-shadow:var(--sh);cursor:pointer;font-size:20px;font-weight:500}
+.rb.t{font-size:12px;font-weight:700}
+.zoom{display:flex;flex-direction:column;border-radius:20px;background:var(--bg);box-shadow:var(--sh)}.zoom .rb{box-shadow:none}
+#layb{left:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);padding:.6rem 1rem;border:0;color:var(--ink);cursor:pointer;font-weight:500;font-size:14px}
+#layp{left:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);width:270px;padding:.8rem 1rem;display:none;z-index:4}
+#layp label{display:flex;gap:.5rem;align-items:center;padding:.25rem 0}
+#layp input[type=range]{width:100%}
+input[type=checkbox]{accent-color:var(--blue)}
+.lb{position:absolute;pointer-events:none;font-size:12px;font-weight:500;color:#202124;background:#fffd;padding:1px 6px;border-radius:10px;white-space:nowrap;transform:translate(10px,-50%)}
+.note{font-size:12px;color:var(--dim)}
+@media(max-width:620px){
+ #card{top:auto;left:0;right:0;bottom:0;width:100%;max-width:none;max-height:42%;border-radius:16px 16px 0 0}
+ #team{top:calc(env(safe-area-inset-top,0px) + 62px);font-size:12px;padding:.35rem .8rem}
+ #ctl{top:50%;bottom:auto;transform:translateY(-50%)}
+ #layb{left:auto;right:10px;bottom:auto;top:calc(env(safe-area-inset-top,0px) + 104px);padding:.4rem .8rem}
+ #layp{left:auto;right:10px;bottom:auto;top:calc(env(safe-area-inset-top,0px) + 146px)}}
+</style></head><body>
+<div id="v"></div>
+<div id="search" class="fl"><input id="q" placeholder="Search Mars" autocomplete="off" aria-label="Search Mars"><button id="sbtn" aria-label="Search">&#128269;</button><div id="res"></div></div>
+<div id="team" class="fl">Team Beyond Infinity 2</div>
+<div id="card" class="fl"></div>
+<button id="layb" class="fl">Layers</button>
+<div id="layp" class="fl">
+<label><input type="checkbox" id="Ls" checked>Slope hazard (MOLA / HiRISE)</label>
+<label><input type="checkbox" id="Lt">Thermal inertia (THEMIS)</label>
+<label><input type="checkbox" id="Lp" checked>Mineral targets (CRISM)</label>
+<div style="margin-top:.5rem">Terrain height <b id="exv">2x</b></div><input type="range" id="ex" min="1" max="6" step="0.5" value="2">
+<div>Local time <b id="sunv">10:00</b></div><input type="range" id="sun" min="6" max="18" step="0.5" value="10">
+<p class="note">Schematic terrain for demonstration, not real mission data.</p></div>
+<div id="ctl" class="fl">
+<button class="rb t" id="bglobe" aria-label="Show Mars globe">Globe</button>
+<button class="rb t" id="b3d" aria-label="Toggle 2D and 3D">3D</button>
+<button class="rb" id="bcomp" aria-label="Reset north">&#129517;</button>
+<button class="rb" id="bhome" aria-label="Go to lander">&#9737;</button>
+<div class="zoom"><button class="rb" id="zi" aria-label="Zoom in">+</button><button class="rb" id="zo" aria-label="Zoom out">&minus;</button></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const N=120,KM=8,CELL=KM*1000/N,$=id=>document.getElementById(id);
+function hash(x,y,s){let h=Math.sin(x*127.1+y*311.7+s*74.7)*43758.5453;return h-Math.floor(h)}
+function vn(x,y,s){const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);const a=hash(xi,yi,s),b=hash(xi+1,yi,s),c=hash(xi,yi+1,s),d=hash(xi+1,yi+1,s);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+function fbm(x,y,s){let t=0,a=.5;for(let i=0;i<4;i++){t+=a*vn(x,y,s+i);x*=2;y*=2;a/=2}return t}
+const H=new Float32Array(N*N),T=new Float32Array(N*N);
+for(let j=0;j<N;j++)for(let i=0;i<N;i++){const u=i/N,v=j/N,d=Math.hypot(u-.5,v-.5);let e=-2400+fbm(u*5,v*5,1)*260;e+=900*Math.exp(-Math.pow((d-.46)/.05,2));if(d>.46)e+=(d-.46)*3500;e+=230*Math.exp(-(Math.pow(u-.27,2)+Math.pow(v-.42,2))/.018)*(.7+.5*fbm(u*14,v*14,9));e+=60*fbm(u*30,v*30,5);H[j*N+i]=e;T[j*N+i]=fbm(u*6,v*6,20)}
+const hs=(i,j)=>H[Math.min(N-1,Math.max(0,j))*N+Math.min(N-1,Math.max(0,i))];
+const slopeAt=(i,j)=>Math.atan(Math.hypot((hs(i+1,j)-hs(i-1,j))/(2*CELL),(hs(i,j+1)-hs(i,j-1))/(2*CELL)))*180/Math.PI;
+const POIS=[
+{n:"Margin carbonates",t:"Mineral deposit",d:"Carbonate signature seen by MRO CRISM along the crater margin. Carbonates can preserve signs of ancient water chemistry.",x:.40,y:.26},
+{n:"Delta front clays",t:"Mineral deposit",d:"Clay-bearing layers from MRO CRISM and HiRISE at the foot of the river delta.",x:.30,y:.46},
+{n:"Olivine-rich floor",t:"Geologic unit",d:"Ancient igneous rock on the crater floor, a good sampling target.",x:.58,y:.62},
+{n:"Delta scarp strata",t:"Geologic unit",d:"Stacked river deposits exposed in the delta scarp, visible in HiRISE images.",x:.25,y:.38},
+{n:"Crater rim breccia",t:"Geologic unit",d:"Ancient impact material on the rim of Jezero.",x:.78,y:.34}];
+const LANDER=[.52,.50];
+const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(Math.min(2,devicePixelRatio));$("v").appendChild(R.domElement);
+const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,1,.05,80);
+const sunL=new THREE.DirectionalLight(0xfff0e0,1.1),amb=new THREE.AmbientLight(0xd9a98a,.35);sc.add(sunL,amb);
+const geo=new THREE.PlaneGeometry(KM,KM,N-1,N-1);geo.rotateX(-Math.PI/2);
+const tc=document.createElement("canvas");tc.width=tc.height=N;const tx=tc.getContext("2d"),tex=new THREE.CanvasTexture(tc);
+const mesh=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:tex,roughness:1}));sc.add(mesh);
+const yOf=e=>(e+2500)/1000*+$("ex").value,wx=u=>(u-.5)*KM,toIdx=x=>Math.round((x/KM+.5)*(N-1)),hAt=(x,z)=>yOf(H[toIdx(z)*N+toIdx(x)]);
+function texture(){const im=tx.createImageData(N,N);for(let j=0;j<N;j++)for(let i=0;i<N;i++){const k=j*N+i,f=(H[k]+2500)/1800;let r=150+60*f,g=82+40*f,b=58+30*f;const bl=(c,a)=>{r=r*(1-a)+c[0]*a;g=g*(1-a)+c[1]*a;b=b*(1-a)+c[2]*a};
+if($("Lt").checked)T[k]>.5?bl([255,150,60],.45):bl([60,140,230],.45);
+if($("Ls").checked){const s=slopeAt(i,j);s<10?bl([60,200,120],.12):s<20?bl([255,210,60],.55):bl([255,50,40],.8)}im.data.set([r,g,b,255],k*4)}tx.putImageData(im,0,0);tex.needsUpdate=true}
+function heights(){const p=geo.attributes.position;for(let k=0;k<N*N;k++)p.setY(k,yOf(H[k]));p.needsUpdate=true;geo.computeVertexNormals();geo.computeBoundingSphere();markers()}
+// pins
+const mg=new THREE.Group();sc.add(mg);const labs=[],pins=[];let sel=null,route=[],legs=[],line=null,path=[],summ={};
+function markers(){while(mg.children.length)mg.remove(mg.children[0]);labs.forEach(l=>l.d.remove());labs.length=0;pins.length=0;
+POIS.forEach((p,i)=>{const x=wx(p.x),z=wx(p.y),c=new THREE.Mesh(new THREE.ConeGeometry(.09,.32,12),new THREE.MeshBasicMaterial({color:0xd93025}));c.position.set(x,hAt(x,z)+.3,z);c.rotation.x=Math.PI;c.userData.i=i;mg.add(c);pins.push(c);
+const d=document.createElement("div");d.className="lb";d.textContent=p.n;document.body.appendChild(d);labs.push({d,c})});
+const L=new THREE.Mesh(new THREE.OctahedronGeometry(.11),new THREE.MeshBasicMaterial({color:0x188038}));L.position.set(wx(LANDER[0]),hAt(wx(LANDER[0]),wx(LANDER[1]))+.14,wx(LANDER[1]));mg.add(L);
+const d=document.createElement("div");d.className="lb";d.textContent="Lander";document.body.appendChild(d);labs.push({d,c:L});
+mg.children.forEach(c=>{if(c.userData.i!==undefined)c.visible=$("Lp").checked});drawRoute()}
+function drawRoute(){if(line){sc.remove(line);line.geometry.dispose();line=null}
+const w=[LANDER,...route].map(p=>[wx(p[0]),wx(p[1])]);path=[];legs=[];let dist=0,ms=0,gain=0,bad=0,prev=null;const near=new Set();
+for(let k=1;k<w.length;k++){const a=w[k-1],b=w[k],len=Math.hypot(b[0]-a[0],b[1]-a[1]),st=Math.max(2,Math.ceil(len*1000/CELL));let lm=0;dist+=len;
+for(let s=0;s<=st;s++){const x=a[0]+(b[0]-a[0])*s/st,z=a[1]+(b[1]-a[1])*s/st,i=toIdx(x),j=toIdx(z),e=H[j*N+i],sl=slopeAt(i,j);lm=Math.max(lm,sl);if(sl>20)bad++;if(prev!==null&&e>prev)gain+=e-prev;prev=e;path.push(new THREE.Vector3(x,yOf(e)+.03,z));POIS.forEach(p=>{if(Math.hypot(wx(p.x)-x,wx(p.y)-z)<.25)near.add(p.n)})}
+ms=Math.max(ms,lm);legs.push({len,lm})}
+if(path.length>1){line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(path),new THREE.LineBasicMaterial({color:0x1a73e8}));sc.add(line);line.visible=mode==='surface'}
+summ={dist,ms,gain,bad,near:[...near],hrs:dist/2.5+gain/1500};card()}
+// card
+let mode='globe';
+function card(){const c=$("card");pins.forEach((p,i)=>p.scale.setScalar(sel===i?1.6:1));
+if(mode==='globe'){c.innerHTML='<h2>Mars</h2><p>Fourth planet from the Sun. The red marker is Jezero Crater, an ancient river delta and a candidate site for a human Marswalk.</p><button class="btn p" id="land">Explore Jezero Crater</button>';$("land").onclick=()=>setMode('surface');return}
+if(sel!==null){const p=POIS[sel];c.innerHTML='<h2>'+p.n+'</h2><p>'+p.t+' · Jezero Crater, Mars</p><p style="color:var(--ink)">'+p.d+'</p><button class="btn p" id="dir">Directions</button><button class="btn" id="cls">Close</button>';
+$("dir").onclick=()=>{route=[[p.x,p.y]];sel=null;drawRoute()};$("cls").onclick=()=>{sel=null;card()};return}
+let h='<h2>Directions</h2>';
+if(!route.length){h+='<p>Click the map or search a place to add a stop. Routes start at the lander.</p><div class="leg"><span class="pin a">A</span><div><b>Lander</b><small>Start</small></div></div>'}
+else{const bad=summ.bad||summ.hrs*2>8;h+='<div class="big'+(bad?' bad':'')+'">'+summ.hrs.toFixed(1)+' h <span>('+summ.dist.toFixed(2)+' km on foot)</span></div><p>'+(summ.bad?'Crosses slopes over 20°. Reroute around the red zones.':summ.hrs*2>8?'Round trip exceeds an 8 h EVA.':'Within slope limits and an 8 h round-trip EVA.')+'</p>';
+h+='<div class="leg"><span class="pin a">A</span><div><b>Lander</b><small>Start</small></div></div>';
+legs.forEach((l,k)=>{const t=route[k],n=POIS.find(p=>p.x===t[0]&&p.y===t[1]);h+='<div class="leg"><span class="pin">'+String.fromCharCode(66+k)+'</span><div><b>'+(n?n.n:'Waypoint '+(k+1))+'</b><small>'+(l.len*1000).toFixed(0)+' m · steepest '+l.lm.toFixed(0)+'°</small></div></div>'});
+h+='<p class="note">Elevation gain '+Math.round(summ.gain)+' m · steepest slope '+summ.ms.toFixed(0)+'°</p>';
+if(summ.near.length)h+='<p><b>Science stops en route</b><br>'+summ.near.join(', ')+'</p>';
+h+='<button class="btn p" id="walk">Start walk</button><button class="btn" id="undo">Undo</button><button class="btn" id="clr">Clear</button>'}
+c.innerHTML=h;if(route.length){$("walk").onclick=()=>{if(path.length>1){wi=0;ast.visible=true}};$("undo").onclick=()=>{route.pop();drawRoute()};$("clr").onclick=()=>{route=[];ast.visible=false;wi=-1;drawRoute()}}}
+// globe
+let jz,jr,jl;const gl=new THREE.Group();sc.add(gl);
+(function(){const W=512,HH=256,c=document.createElement("canvas");c.width=W;c.height=HH;const g=c.getContext("2d"),im=g.createImageData(W,HH);
+for(let y=0;y<HH;y++){const lat=90-(y+.5)/HH*180,la=lat*Math.PI/180;for(let x=0;x<W;x++){const lon=(x+.5)/W*360-180,lo=lon*Math.PI/180;
+const n=fbm(Math.cos(lo)*2.2+la*1.6+5,Math.sin(lo)*2.2-la*1.6+5,3),d=fbm(Math.cos(lo)*7+la*5,Math.sin(lo)*7-la*5,11),q=(n-.5)*1.6;
+let r=205+50*q,gg=118+40*q,b=78+30*q;const m=Math.max(0,Math.min(1,(.46-n)*5));r-=m*95;gg-=m*60;b-=m*35;r+=(d-.5)*40;gg+=(d-.5)*28;b+=(d-.5)*18;
+if(lat<-2&&lat>-16&&lon>-100&&lon<-40){const k=Math.max(0,1-Math.abs(lat+9)/5);r-=k*70;gg-=k*55;b-=k*40}
+const pc=Math.abs(lat)-(80+(d-.5)*8);if(pc>0){const k=Math.min(1,pc/2);r+=(240-r)*k;gg+=(235-gg)*k;b+=(235-b)*k}
+const o=(y*W+x)*4;im.data[o]=r;im.data[o+1]=gg;im.data[o+2]=b;im.data[o+3]=255}}
+g.putImageData(im,0,0);
+gl.add(new THREE.Mesh(new THREE.SphereGeometry(3,64,48),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),roughness:1})));
+gl.add(new THREE.Mesh(new THREE.SphereGeometry(3.07,48,32),new THREE.MeshBasicMaterial({color:0xe8a070,transparent:true,opacity:.14,side:THREE.BackSide})));
+const sp=[];for(let i=0;i<700;i++){const u=Math.random()*2-1,a=Math.random()*6.283,s=Math.sqrt(1-u*u);sp.push(new THREE.Vector3(s*Math.cos(a)*40,u*40,s*Math.sin(a)*40))}
+gl.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(sp),new THREE.PointsMaterial({color:0xffffff,size:.12,fog:false})));
+const la=18.4*Math.PI/180,pp=(77.6+180)*Math.PI/180,P=new THREE.Vector3(-3.03*Math.cos(la)*Math.cos(pp),3.03*Math.sin(la),3.03*Math.cos(la)*Math.sin(pp));
+jz=new THREE.Mesh(new THREE.SphereGeometry(.05,12,12),new THREE.MeshBasicMaterial({color:0xd93025}));jz.position.copy(P);gl.add(jz);
+jr=new THREE.Mesh(new THREE.RingGeometry(.09,.12,32),new THREE.MeshBasicMaterial({color:0xd93025,side:THREE.DoubleSide}));jr.position.copy(P);jr.lookAt(P.clone().multiplyScalar(2));gl.add(jr);
+jl=document.createElement("div");jl.className="lb";jl.textContent="Jezero Crater";document.body.appendChild(jl)})();
+// astronaut
+const ast=new THREE.Group();ast.add(new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,.16,10),new THREE.MeshBasicMaterial({color:0xffffff})));const hd=new THREE.Mesh(new THREE.SphereGeometry(.045,10,10),new THREE.MeshBasicMaterial({color:0xffb347}));hd.position.y=.12;ast.add(hd);ast.visible=false;sc.add(ast);let wi=-1;
+// camera
+let th=Math.PI/2,ph=1.0,rad=11;const tg=new THREE.Vector3(0,1,0);let fly=null;
+function place(){cam.position.set(tg.x+rad*Math.sin(ph)*Math.cos(th),tg.y+rad*Math.cos(ph),tg.z+rad*Math.sin(ph)*Math.sin(th));cam.lookAt(tg)}
+function setMode(m){mode=m;const gm=m==='globe';gl.visible=gm;mesh.visible=!gm;mg.visible=!gm;if(line)line.visible=!gm;ast.visible=!gm&&wi>=0;sel=null;
+sc.background=new THREE.Color(gm?0x05030a:0xc9936a);sc.fog=gm?null:new THREE.Fog(0xc9936a,10,28);
+if(gm){th=-1.35;ph=1.25;rad=9;tg.set(0,0,0);sunL.position.set(8,3,6);sunL.intensity=1.5;amb.intensity=.25}else{th=Math.PI/2;ph=1.0;rad=9;tg.set(0,1,0);amb.intensity=.35;sun()}
+$("bglobe").style.display=gm?"none":"block";["b3d","bhome"].forEach(i=>$(i).style.display=gm?"none":"block");card()}
+function select(i){if(mode==='globe')setMode('surface');if(i===-1){fly=new THREE.Vector3(wx(LANDER[0]),1,wx(LANDER[1]));return}sel=i;fly=new THREE.Vector3(wx(POIS[i].x),1,wx(POIS[i].y));rad=Math.min(rad,6);card()}
+let drag=null,moved=0,rot=false;const cvs=R.domElement;
+cvs.addEventListener("contextmenu",e=>e.preventDefault());
+cvs.addEventListener("pointerdown",e=>{drag=[e.clientX,e.clientY];moved=0;rot=e.shiftKey||e.button===2||e.ctrlKey;cvs.setPointerCapture(e.pointerId);cvs.style.cursor="grabbing"});
+cvs.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-drag[0],dy=e.clientY-drag[1];moved+=Math.abs(dx)+Math.abs(dy);drag=[e.clientX,e.clientY];
+if(mode==='globe'||rot){th-=dx*.006;ph=Math.min(1.5,Math.max(.15,ph-dy*.006))}
+else{const k=rad*.0016,s=Math.sin(th),c=Math.cos(th);tg.x=Math.max(-4,Math.min(4,tg.x-s*dx*k+(-c)*dy*k*-1*-1));tg.z=Math.max(-4,Math.min(4,tg.z+c*dx*k+(-s)*dy*k*-1*-1));fly=null}});
+cvs.addEventListener("pointerup",e=>{drag=null;cvs.style.cursor="grab";if(moved<6&&mode==='surface'){const r=cvs.getBoundingClientRect(),rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1),cam);
+const vis=pins.filter(p=>p.visible),pk=rc.intersectObjects(vis)[0];if(pk){select(pk.object.userData.i);return}
+const h=rc.intersectObject(mesh)[0];if(h){sel=null;route.push([h.point.x/KM+.5,h.point.z/KM+.5]);drawRoute()}}});
+cvs.addEventListener("wheel",e=>{e.preventDefault();rad=Math.min(20,Math.max(mode==='globe'?4.5:1.5,rad*(1+e.deltaY*.001)))},{passive:false});
+function size(){R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}addEventListener("resize",size);
+function sun(){const h=+$("sun").value,a=(h-12)/6*1.3+Math.PI*1.25,al=Math.max(.2,Math.sin(Math.PI*(h-6)/12));if(mode==='surface'){sunL.position.set(Math.cos(a)*8,al*9,Math.sin(a)*8);sunL.intensity=.6+al*.7}$("sunv").textContent=Math.floor(h)+":"+(h%1?"30":"00")}
+// ui
+$("sun").oninput=sun;$("ex").oninput=()=>{$("exv").textContent=$("ex").value+"x";heights()};
+["Ls","Lt"].forEach(i=>$(i).oninput=texture);$("Lp").oninput=()=>pins.forEach(p=>p.visible=$("Lp").checked);
+$("layb").onclick=()=>{const p=$("layp");p.style.display=p.style.display==="block"?"none":"block"};
+$("zi").onclick=()=>rad=Math.max(mode==='globe'?4.5:1.5,rad*.75);$("zo").onclick=()=>rad=Math.min(20,rad*1.33);
+$("bcomp").onclick=()=>{th=mode==='globe'?th:Math.PI/2};
+$("b3d").onclick=()=>{const flat=ph<.4;ph=flat?1.0:.15;$("b3d").textContent=flat?"3D":"2D"};
+$("bhome").onclick=()=>select(-1);$("bglobe").onclick=()=>setMode('globe');
+const q=$("q"),res=$("res");
+function results(){const t=q.value.trim().toLowerCase();const items=[{n:"Jezero Crater",s:"Landing site · Mars",i:-1},...POIS.map((p,i)=>({n:p.n,s:p.t+" · Jezero Crater",i}))].filter(o=>!t||o.n.toLowerCase().includes(t)||o.s.toLowerCase().includes(t));
+res.style.display=items.length?"block":"none";res.innerHTML="";items.forEach(o=>{const d=document.createElement("div");d.innerHTML=o.n+"<small>"+o.s+"</small>";d.onclick=()=>{res.style.display="none";q.value=o.n;select(o.i)};res.appendChild(d)})}
+q.onfocus=q.oninput=results;q.onkeydown=e=>{if(e.key==="Enter"){const f=res.firstChild;if(f)f.onclick()}};
+$("sbtn").onclick=()=>{q.focus();results()};
+document.addEventListener("click",e=>{if(!$("search").contains(e.target))res.style.display="none"});
+const v3=new THREE.Vector3();
+function loop(){requestAnimationFrame(loop);
+if(wi>=0){wi+=1;if(wi>=path.length)wi=-1;else{ast.position.copy(path[wi]).y+=.1;tg.lerp(path[wi],.04)}}
+if(fly){tg.lerp(fly,.12);if(tg.distanceTo(fly)<.02)fly=null}
+if(mode==='globe'&&!drag)th+=.0015;
+place();R.render(sc,cam);
+$("bcomp").style.transform="rotate("+(mode==='globe'?0:(th-Math.PI/2))+"rad)";
+jl.style.display="none";if(mode==='globe'){jr.scale.setScalar(1+.25*Math.sin(Date.now()/300));v3.copy(jz.position).project(cam);const f=jz.position.clone().normalize().dot(cam.position.clone().normalize());if(f>.2){jl.style.display="block";jl.style.left=(v3.x*.5+.5)*innerWidth+"px";jl.style.top=(-v3.y*.5+.5)*innerHeight+"px"}}
+labs.forEach(l=>{const on=mode==='surface'&&(l.c.userData.i===undefined||$("Lp").checked);l.d.style.display=on?"block":"none";if(!on)return;v3.copy(l.c.position).project(cam);l.d.style.left=(v3.x*.5+.5)*innerWidth+"px";l.d.style.top=(-v3.y*.5+.5)*innerHeight+"px"})}
+size();sun();texture();heights();setMode('globe');loop();
+</script></body></html>
